@@ -135,7 +135,7 @@ def main():
         [{**data, "id": id} for id, data in img_posts.items()],
         key=lambda e: e["replies"],
         reverse=True,
-    )
+    )[:50]
 
     # Run images through saucenao to get Mangadex id, only keeping those with matches.
     for post in img_posts_list:
