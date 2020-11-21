@@ -9,6 +9,7 @@ img {
 }
 
 div {
+  display: inline-block;
   background-color: beige;
   margin: 5px;
   padding: 5px;

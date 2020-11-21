@@ -90,7 +90,7 @@ def generate_html(posts):
             [f"<br><b>{k}:</b> {process(v)}" for k, v in post.items() if k in fields]
         )
         img = f"""<a href="{post['md_url']}"><img src="{post['url']}"></a>"""
-        inner_html += f"<div>{img} {details}</div>\n"
+        inner_html += f"<div>{img} {details}</div><br>\n"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
