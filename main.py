@@ -138,6 +138,7 @@ def main():
     )[:50]
 
     # Run images through saucenao to get Mangadex id, only keeping those with matches.
+    md_results = []
     for post in img_posts_list:
         print(post)
         url = post["url"]
@@ -147,14 +148,15 @@ def main():
             post["md_url"] = result["data"]["ext_urls"][0]
             post["artist"] = result["data"]["artist"]
             post["author"] = result["data"]["author"]
+            md_results.append(post)
         # saucenao API rate limit is 6 requests per 30s
         if len(img_posts_list) > 5:
             time.sleep(5)
 
-    print(img_posts_list)
+    print(md_results)
     # TODO: should dedupe by mangadex id too
 
-    html: str = generate_html(img_posts_list)
+    html: str = generate_html(md_results)
 
     outdir = Path(config["OUTPUT_PATH"])
     os.makedirs(outdir, exist_ok=True)
