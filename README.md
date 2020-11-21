@@ -25,7 +25,8 @@ Scrapes 4chan's "one page threads" (/opt/) to find interesting manga titles.
 ```sh
 # create conf.json
 {
-    "SAUCENAO_API_KEY": "FILL_ME"
+    "SAUCENAO_API_KEY": "FILL_ME",
+    "OUTPUT_PATH": "out"
 }
 
 # then just run

@@ -1,4 +1,9 @@
 import json
+import os
+import shutil
+import time
+from collections import defaultdict
+from pathlib import Path
 from typing import Union
 
 import urllib3
@@ -64,17 +69,99 @@ def reverse_search(url):
         return results[0]
 
 
-if __name__ == "__main__":
+def generate_html(posts):
+    def process(value):
+        value = str(value)
+        if value.startswith("http://") or value.startswith("https://"):
+            return f"""<a href="{value}">{value}</a>"""
+        return value
+
+    fields = [
+        "replies",
+        "com",
+        "series_name",
+        "md_url",
+        "artist",
+        "author",
+    ]
+    inner_html = ""
+    for post in posts:
+        details = "\n".join(
+            [f"<br><b>{k}:</b> {process(v)}" for k, v in post.items() if k in fields]
+        )
+        img = f"""<a href="{post['md_url']}"><img src="{post['url']}"></a>"""
+        inner_html += f"<div>{img} {details}</div>\n"
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spoonfeeder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+{inner_html}
+</body>
+</html>"""
+
+
+def main():
     no = find_one_page_thread_number()
     thread_url = f"https://a.4cdn.org/a/thread/{no}.json"
     thread = get_json(thread_url)
-    img_urls = [
-        f"https://i.4cdn.org/a/{post['tim']}{post['ext']}"
-        for post in thread["posts"]
-        if post.get("ext")
-    ]
-    for url in img_urls:
-        # TODO: saucenao API rate limit is 6 requests per 30s. Gotta throttle this one.
+
+    # Filter to get posts with images only
+    img_posts = defaultdict(lambda: {"replies": 0})
+    for post in thread["posts"]:
+        if not post.get("ext"):
+            continue
+        img_post = img_posts[post["no"]]
+        img_post.update(
+            {
+                "com": post.get("com", ""),
+                # "url": f"https://i.4cdn.org/a/{post['tim']}{post['ext']}",
+                "url": f"https://is2.4chan.org/a/{post['tim']}{post['ext']}",
+            }
+        )
+
+        # Count number of replies too
+        com_soup = BeautifulSoup(img_post["com"], "html.parser")
+        for a_tag in com_soup.find_all("a", class_="quotelink"):
+            target_id = int(a_tag.attrs["href"][2:])
+            if target_id in img_posts:
+                img_posts[target_id]["replies"] += 1
+
+    # Transform from dict to list, sort by descending number of (You)s
+    img_posts_list = sorted(
+        [{**data, "id": id} for id, data in img_posts.items()],
+        key=lambda e: e["replies"],
+        reverse=True,
+    )
+
+    # Run images through saucenao to get Mangadex id, only keeping those with matches.
+    for post in img_posts_list:
+        print(post)
+        url = post["url"]
         result = reverse_search(url)
         if result:
-            print(result["data"]["source"])
+            post["series_name"] = result["data"]["source"]
+            post["md_url"] = result["data"]["ext_urls"][0]
+            post["artist"] = result["data"]["artist"]
+            post["author"] = result["data"]["author"]
+        # saucenao API rate limit is 6 requests per 30s
+        if len(img_posts_list) > 5:
+            time.sleep(5)
+
+    print(img_posts_list)
+    # TODO: should dedupe by mangadex id too
+
+    html: str = generate_html(img_posts_list)
+
+    outdir = Path(config["OUTPUT_PATH"])
+    os.makedirs(outdir, exist_ok=True)
+    with open(outdir / "index.html", "w") as outfile:
+        outfile.write(html)
+    shutil.copy("style.css", outdir / "style.css")
+
+
+if __name__ == "__main__":
+    main()
