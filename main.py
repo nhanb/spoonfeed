@@ -44,9 +44,8 @@ def find_one_page_thread_number() -> int:
     print("Checking archive...")
     archive_html = get_html("https://boards.4channel.org/a/archive")
     for headline in archive_html.find_all("td", class_="teaser-col"):
-        if headline.text:
-            if "/opt/" in headline.text.lower():
-                return int(headline.previous_sibling.text)
+        if headline.text and "/opt/" in headline.text.lower():
+            return int(headline.previous_sibling.text)
 
 
 def reverse_search(url):
