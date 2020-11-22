@@ -1,4 +1,4 @@
-API docs: https://github.com/4chan/4chan-API
+Shitty source code for https://spoonfeed.pytaku.com/
 
 Deps: `urllib3 beautifulsoup4`
 
@@ -16,8 +16,7 @@ Scrapes 4chan's "one page threads" (/opt/) to find interesting manga titles.
 
 - Periodically check /opt/
 - Run images throught saucenao
-- Present matches on a glance-friendly web page, maybe sorted by number of
-  replies
+- Present matches on a glance-friendly web page, sorted by number of replies
 - Profit(?)
 
 # Using
