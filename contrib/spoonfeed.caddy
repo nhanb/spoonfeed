@@ -1,0 +1,4 @@
+spoonfeed.pytaku.com {
+    root * /var/www/spoonfeed.pytaku.com
+    file_server
+}

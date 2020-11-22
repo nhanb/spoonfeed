@@ -16,7 +16,7 @@ Scrapes 4chan's "one page threads" (/opt/) to find interesting manga titles.
 
 - Periodically check /opt/
 - Run images throught saucenao
-- Present matches on a glance-friendly web page, sorted by number of replies
+- Present matches on a glance-friendly web page, sorted by number of (You)s
 - Profit(?)
 
 # Using
@@ -30,4 +30,14 @@ Scrapes 4chan's "one page threads" (/opt/) to find interesting manga titles.
 
 # then just run
 python main.py
+
+# which will generate a static website into OUTPUT_PATH that you can serve
+# using nginx or caddy.
 ```
+
+# Yakshaving ideas
+
+- Cache saucenao results: because their API has strict 30s and daily rate
+  limits.
+- Store everything in sqlite: may allow for incremental updates & more powerful
+  derived metrics.
