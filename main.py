@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -114,37 +115,39 @@ def generate_html(posts):
 
 
 def main():
+    posts_limit = int(sys.argv[1]) if len(sys.argv) == 2 else 50
     no = find_one_page_thread_number()
     thread_url = f"https://a.4cdn.org/a/thread/{no}.json"
     thread = get_json(thread_url)
 
-    # Filter to get posts with images only
-    img_posts = defaultdict(lambda: {"replies": 0})
+    # Let's find image posts and their reply counts
+    img_posts = {}
     for post in thread["posts"]:
-        if not post.get("ext"):
-            continue
-        img_post = img_posts[post["no"]]
-        img_post.update(
-            {
-                "com": post.get("com", ""),
-                # "url": f"https://i.4cdn.org/a/{post['tim']}{post['ext']}",
-                "url": f"https://is2.4chan.org/a/{post['tim']}{post['ext']}",
-            }
-        )
-
-        # Count number of replies too
-        com_soup = BeautifulSoup(img_post["com"], "html.parser")
+        # If this post replies to any image post(s), bump their counts:
+        com_soup = BeautifulSoup(post.get("com", ""), "html.parser")
         for a_tag in com_soup.find_all("a", class_="quotelink"):
             target_id = int(a_tag.attrs["href"][2:])
             if target_id in img_posts:
                 img_posts[target_id]["replies"] += 1
+
+        # Only include this post in results if it's an image post:
+        if post.get("ext"):
+            img_posts[post["no"]] = {
+                "replies": 0,
+                "com": post.get("com", ""),
+                # "url": f"https://i.4cdn.org/a/{post['tim']}{post['ext']}",
+                # API doc says i.4cdn.org but it's behind a cloudflare captcha
+                # while the website itself uses is2.4chan.org which somehow
+                # Just Werks (tm).
+                "url": f"https://is2.4chan.org/a/{post['tim']}{post['ext']}",
+            }
 
     # Transform from dict to list, sort by descending number of (You)s
     img_posts_list = sorted(
         [{**data, "id": id} for id, data in img_posts.items()],
         key=lambda e: e["replies"],
         reverse=True,
-    )[:50]
+    )[:posts_limit]
 
     # Run images through saucenao to get Mangadex id, only keeping those with matches.
     md_results = []
