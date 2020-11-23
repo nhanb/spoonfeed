@@ -1,0 +1,2 @@
+# spoonfeeder script, every day at 4am
+0 4 * * * cd $HOME/spoonfeed && python3.7 main.py

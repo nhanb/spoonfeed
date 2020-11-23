@@ -3,16 +3,23 @@ body, html, img, div {
   padding: 0;
 }
 
+body {
+  font-family: sans-serif;
+}
+
 img {
   height: 100%;
   max-height: 500px;
   max-width: 100%;
 }
 
+div, p {
+  margin: 5px;
+}
+
 div {
   display: inline-block;
   background-color: beige;
-  margin: 5px;
   padding: 5px;
   border: 1px solid brown;
 }

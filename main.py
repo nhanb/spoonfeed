@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import subprocess
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -84,6 +85,14 @@ def generate_html(posts):
         "author",
     ]
     inner_html = ""
+
+    now = (
+        subprocess.run("date", env={"TZ": "Asia/Ho_Chi_Minh"}, capture_output=True)
+        .stdout.decode()
+        .strip()
+    )
+    inner_html += f"<p><b>Generated at: {now}</b></p>"
+
     for post in posts:
         details = "\n".join(
             [f"<br><b>{k}:</b> {process(v)}" for k, v in post.items() if k in fields]
