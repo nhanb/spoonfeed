@@ -4,9 +4,9 @@ import shutil
 import subprocess
 import sys
 import time
-from collections import defaultdict
 from pathlib import Path
 from typing import Union
+from urllib.parse import quote
 
 import urllib3
 from bs4 import BeautifulSoup
@@ -97,12 +97,14 @@ def generate_html(posts):
         .strip()
     )
     inner_html += f"<p><b>Generated at: {now}</b></p>"
+    inner_html += "\n<p>Click on image to jump straight to pytaku search</p>"
 
     for post in posts:
+        pytaku_link = f'https://dev.pytaku.com/s/{quote(post["series_name"])}'
         details = "\n".join(
             [f"<br><b>{k}:</b> {process(v)}" for k, v in post.items() if k in fields]
         )
-        img = f"""<a href="{post['md_url']}"><img src="{post['url']}"></a>"""
+        img = f"""<a href="{pytaku_link}"><img src="{post['url']}"></a>"""
         inner_html += f"<div>{img} {details}</div><br>\n"
     return f"""<!DOCTYPE html>
 <html lang="en">
