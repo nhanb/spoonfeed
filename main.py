@@ -37,8 +37,12 @@ def find_one_page_thread_number() -> int:
     pages: list = get_json("https://a.4cdn.org/a/catalog.json")
     for page in pages:
         for thread in page["threads"]:
-            if "/opt/" in thread.get("sub", "") or "/opt/" in thread.get("com", ""):
-                return thread["no"]
+            sub = thread.get("sub", "").lower()
+            com = thread.get("com", "").lower()
+            keywords = ["/opt/", "one page thread", "one-page thread"]
+            for kw in keywords:
+                if kw in com or kw in sub:
+                    return thread["no"]
 
     # If it's not there then try the archive.
     # AFAIK there's no 4chan API that lists all archived thread subjects so let's just
