@@ -132,7 +132,8 @@ def main():
         # If this post replies to any image post(s), bump their counts:
         com_soup = BeautifulSoup(post.get("com", ""), "html.parser")
         for a_tag in com_soup.find_all("a", class_="quotelink"):
-            target_id = int(a_tag.attrs["href"][2:])
+            href = a_tag.attrs["href"]
+            target_id = int(href[href.find("#p") + 2 :])
             if target_id in img_posts:
                 img_posts[target_id]["replies"] += 1
 
