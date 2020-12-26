@@ -21,13 +21,13 @@ client = urllib3.PoolManager(
 
 def get_json(url, **kwargs) -> Union[list, dict]:
     resp = client.request("GET", url, **kwargs)
-    assert resp.status == 200, resp.data
+    assert resp.status == 200, f"{resp.status} - {url} - {resp.data}"
     return json.loads(resp.data)
 
 
 def get_html(url) -> BeautifulSoup:
     resp = client.request("GET", url)
-    assert resp.status == 200, resp.data
+    assert resp.status == 200, f"{resp.status} - {url} - {resp.data}"
     return BeautifulSoup(resp.data, "html.parser")
 
 
@@ -123,6 +123,9 @@ def generate_html(posts):
 def main():
     posts_limit = int(sys.argv[1]) if len(sys.argv) == 2 else 50
     no = find_one_page_thread_number()
+    if no is None:
+        print("OPT not found. Aborted.")
+        return
     thread_url = f"https://a.4cdn.org/a/thread/{no}.json"
     thread = get_json(thread_url)
 
