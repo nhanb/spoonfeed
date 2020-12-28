@@ -74,7 +74,7 @@ def reverse_search(url):
         return results[0]
 
 
-def generate_html(posts):
+def generate_html(thread_no, posts):
     def process(value):
         value = str(value)
         if value.startswith("http://") or value.startswith("https://"):
@@ -98,6 +98,8 @@ def generate_html(posts):
     )
     inner_html += f"<p><b>Generated at: {now}</b></p>"
     inner_html += "\n<p>Click on image to jump straight to pytaku search</p>"
+
+    inner_html += f'\n<p><a href="https://desuarchive.org/a/thread/{thread_no}">Go to archive</a></p>'
 
     for post in posts:
         pytaku_link = f'https://dev.pytaku.com/s/{quote(post["series_name"])}'
@@ -178,7 +180,7 @@ def main():
     print(md_results)
     # TODO: should dedupe by mangadex id too
 
-    html: str = generate_html(md_results)
+    html: str = generate_html(no, md_results)
 
     outdir = Path(config["OUTPUT_PATH"])
     os.makedirs(outdir, exist_ok=True)
