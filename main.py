@@ -31,18 +31,27 @@ def get_html(url) -> BeautifulSoup:
     return BeautifulSoup(resp.data, "html.parser")
 
 
+def is_opt_text(text):
+    if not text:
+        return False
+    text = text.strip().lower()
+    if text == "opt":
+        return True
+    keywords = ["/opt/", "one page thread", "one-page thread"]
+    for kw in keywords:
+        if kw in text:
+            return True
+    return False
+
+
 def find_one_page_thread_number() -> int:
     # First try the catalog
     print("Checking catalog...")
     pages: list = get_json("https://a.4cdn.org/a/catalog.json")
     for page in pages:
         for thread in page["threads"]:
-            sub = thread.get("sub", "").lower()
-            com = thread.get("com", "").lower()
-            keywords = ["/opt/", "one page thread", "one-page thread"]
-            for kw in keywords:
-                if kw in com or kw in sub:
-                    return thread["no"]
+            if is_opt_text(thread.get("sub")) or is_opt_text(thread.get("com")):
+                return thread["no"]
 
     # If it's not there then try the archive.
     # AFAIK there's no 4chan API that lists all archived thread subjects so let's just
@@ -50,7 +59,7 @@ def find_one_page_thread_number() -> int:
     print("Checking archive...")
     archive_html = get_html("https://boards.4channel.org/a/archive")
     for headline in archive_html.find_all("td", class_="teaser-col"):
-        if headline.text and "/opt/" in headline.text.lower():
+        if is_opt_text(headline.text):
             return int(headline.previous_sibling.text)
 
 
