@@ -157,10 +157,10 @@ def main():
                 "replies": 0,
                 "com": post.get("com", ""),
                 # "url": f"https://i.4cdn.org/a/{post['tim']}{post['ext']}",
-                # API doc says i.4cdn.org but it's behind a cloudflare captcha
-                # while the website itself uses is2.4chan.org which somehow
-                # Just Werks (tm).
-                "url": f"https://is2.4chan.org/a/{post['tim']}{post['ext']}",
+                # API doc says i.4cdn.org but it's behind a cloudflare captcha.
+                # 4chan itself used to use is2.4chan.org which doesn't impose any
+                # captcha fuckery but that no longer works.
+                "url": f"https://i.4cdn.org/a/{post['tim']}{post['ext']}",
             }
 
     # Transform from dict to list, sort by descending number of (You)s
